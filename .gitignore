@@ -180,9 +180,3 @@ build/
 # 日志文件
 *.log
 logs/
-
-# 用户配置
-config.json
-settings.json
-
-# 注意：libs目录中的DLL文件会上传到GitHub，但其他临时文件不提交
