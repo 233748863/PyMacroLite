@@ -167,8 +167,6 @@ Desktop.ini
 # Linux
 *~
 
-# 项目特定文件
-*.onnx
 
 # 构建输出
 dist/
