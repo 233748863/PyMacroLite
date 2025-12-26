@@ -1,6 +1,21 @@
-# PyMacroLite 使用文档
+# PyMacroLite
+
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 
 轻量级游戏自动化脚本工具，支持 OCR 文字识别、模板匹配、鼠标键盘控制。
+
+## ✨ 特性
+
+- 🎮 **游戏自动化** - 支持鼠标、键盘自动化操作
+- 🔍 **视觉识别** - 基于OCR和模板匹配的目标识别
+- 🖱️ **拟人化操作** - 贝塞尔曲线模拟人类鼠标移动轨迹
+- 📝 **可视化编辑器** - 图形化脚本编辑，无需编程经验
+- ⚡ **高性能** - 支持GPU加速的OCR识别
+- 🛡️ **安全可靠** - 内置防检测机制，随机误差和延迟
+
+## 🚀 快速开始
 
 ## 安装依赖
 
