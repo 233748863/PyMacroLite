@@ -75,14 +75,37 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: 清理
+echo.
+echo [复制配置文件和模型...]
+
+:: 复制 OCR 模型文件
+if exist "ocr_model" (
+    echo 复制 OCR 模型...
+    xcopy /E /I /Y "ocr_model" "dist_onefile\ocr_model" >nul
+)
+
+:: 复制配置文件（方便用户修改）
+if exist "project.json" (
+    echo 复制配置文件...
+    copy /Y "project.json" "dist_onefile\" >nul
+)
+
+echo.
+echo [清理临时文件...]
+
+:: 清理 Nuitka 临时文件
 if exist "gui.build" rmdir /s /q gui.build
+if exist "gui.dist" rmdir /s /q gui.dist
 if exist "gui.onefile-build" rmdir /s /q gui.onefile-build
+if exist "PyMacroLite.build" rmdir /s /q PyMacroLite.build
+if exist "PyMacroLite.dist" rmdir /s /q PyMacroLite.dist
+if exist "PyMacroLite.onefile-build" rmdir /s /q PyMacroLite.onefile-build
 
 echo.
 echo ========================================
 echo   打包完成！
-echo   输出: dist_onefile\PyMacroLite.exe
+echo   输出目录: dist_onefile\
+echo   包含: PyMacroLite.exe, ocr_model\, project.json
 echo ========================================
 echo.
 

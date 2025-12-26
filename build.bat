@@ -83,11 +83,30 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/2] 清理临时文件...
+echo [2/3] 复制配置文件和模型...
+
+:: 复制 OCR 模型文件
+if exist "ocr_model" (
+    echo 复制 OCR 模型...
+    xcopy /E /I /Y "ocr_model" "dist\gui.dist\ocr_model" >nul
+)
+
+:: 复制配置文件（方便用户修改）
+if exist "project.json" (
+    echo 复制配置文件...
+    copy /Y "project.json" "dist\gui.dist\" >nul
+)
+
+echo.
+echo [3/3] 清理临时文件...
 
 :: 清理 Nuitka 临时文件
 if exist "gui.build" rmdir /s /q gui.build
+if exist "gui.dist" rmdir /s /q gui.dist
 if exist "gui.onefile-build" rmdir /s /q gui.onefile-build
+if exist "PyMacroLite.build" rmdir /s /q PyMacroLite.build
+if exist "PyMacroLite.dist" rmdir /s /q PyMacroLite.dist
+if exist "PyMacroLite.onefile-build" rmdir /s /q PyMacroLite.onefile-build
 
 echo.
 echo ========================================
