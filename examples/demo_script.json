@@ -1,0 +1,126 @@
+{
+    "_settings": {
+        "global_variance": 5,
+        "global_offset_x": 0,
+        "global_offset_y": 0,
+        "human_move": true
+    },
+
+    "main": [
+        {"action": "wait", "params": {"seconds": 1}},
+        {"action": "call_script", "params": {"name": "自动登录"}},
+        {"action": "call_script", "params": {"name": "主循环"}}
+    ],
+
+    "自动登录": [
+        {"action": "label", "params": {"name": "检测登录界面"}},
+        
+        {"action": "jump_if_found", "params": {
+            "target": "assets/id.png",
+            "confidence": 0.8,
+            "label": "输入账号"
+        }},
+        {"action": "wait", "params": {"seconds": 1}},
+        {"action": "jump", "params": {"target": "检测登录界面"}},
+        
+        {"action": "label", "params": {"name": "输入账号"}},
+        {"action": "find_and_click", "params": {
+            "target": "assets/id.png",
+            "confidence": 0.8
+        }},
+        {"action": "wait", "params": {"seconds": 0.2}},
+        {"action": "type", "params": {"text": "your_username"}},
+        
+        {"action": "key_hold", "params": {"key": "tab", "duration": 0.1}},
+        {"action": "type", "params": {"text": "your_password"}},
+        
+        {"action": "click_text", "params": {
+            "text": "登录",
+            "button": "left"
+        }},
+        {"action": "wait", "params": {"seconds": 3}},
+        
+        {"action": "return", "params": {}}
+    ],
+
+    "主循环": [
+        {"action": "label", "params": {"name": "loop_start"}},
+        
+        {"action": "run_python", "params": {"code": "# 检测当前状态\ntext = api.ocr(region=[0, 0, 200, 50])\napi.log(f'当前状态: {text}')\n\nif '战斗' in text:\n    api.jump('战斗中')\nelif '城镇' in text:\n    api.jump('在城镇')\n"}},
+        
+        {"action": "wait", "params": {"seconds": 2}},
+        {"action": "jump", "params": {"target": "loop_start"}},
+        
+        {"action": "label", "params": {"name": "战斗中"}},
+        {"action": "call_script", "params": {"name": "自动战斗"}},
+        {"action": "jump", "params": {"target": "loop_start"}},
+        
+        {"action": "label", "params": {"name": "在城镇"}},
+        {"action": "call_script", "params": {"name": "补给"}},
+        {"action": "jump", "params": {"target": "loop_start"}}
+    ],
+
+    "自动战斗": [
+        {"action": "label", "params": {"name": "寻找怪物"}},
+        
+        {"action": "jump_if_found", "params": {
+            "target": "assets/target.png",
+            "confidence": 0.7,
+            "label": "攻击"
+        }},
+        
+        {"action": "key_hold", "params": {"key": "w", "duration": 0.5}},
+        {"action": "jump", "params": {"target": "寻找怪物"}},
+        
+        {"action": "label", "params": {"name": "攻击"}},
+        {"action": "find_and_click", "params": {
+            "target": "assets/target.png",
+            "confidence": 0.7,
+            "button": "left",
+            "human": true
+        }},
+        {"action": "wait", "params": {"seconds": 0.3}},
+        
+        {"action": "key_hold", "params": {"key": "1", "duration": 0.1}},
+        {"action": "wait", "params": {"seconds": 1.5}},
+        
+        {"action": "return", "params": {}}
+    ],
+
+    "补给": [
+        {"action": "check_value_jump", "params": {
+            "region": [100, 50, 50, 20],
+            "op": ">",
+            "value": 50,
+            "label": "血量充足"
+        }},
+        
+        {"action": "click_text", "params": {
+            "text": "商店",
+            "button": "left"
+        }},
+        {"action": "wait", "params": {"seconds": 1}},
+        {"action": "click_text", "params": {
+            "text": "购买",
+            "button": "left"
+        }},
+        
+        {"action": "label", "params": {"name": "血量充足"}},
+        {"action": "return", "params": {}}
+    ],
+
+    "OCR密码键盘": [
+        {"action": "run_python", "params": {"code": "# OCR 识别乱序数字键盘并输入密码\nimport re\nfrom PIL import ImageDraw\n\n# 设置区域和密码\nkeypad_area = (337, 231, 125, 67)  # x, y, w, h\nrows, cols = 3, 3\npassword = \"1234\"\nDEBUG = False\n\ndef scan_keypad():\n    key_map = {}\n    img = api.screenshot()\n    if not img:\n        return None\n    \n    draw = ImageDraw.Draw(img) if DEBUG else None\n    rx, ry, rw, rh = keypad_area\n    cell_w, cell_h = rw // cols, rh // rows\n    \n    for r in range(rows):\n        for c in range(cols):\n            pad = 3\n            box_x = rx + c * cell_w + pad\n            box_y = ry + r * cell_h + pad\n            box_w = cell_w - pad * 2\n            box_h = cell_h - pad * 2\n            \n            text = api.ocr(region=[box_x, box_y, box_w, box_h])\n            num = ''.join(re.findall(r'\\d+', text))\n            \n            if num:\n                cx = box_x + box_w // 2\n                cy = box_y + box_h // 2\n                key_map[num] = (cx, cy)\n                \n                if DEBUG:\n                    draw.rectangle([box_x, box_y, box_x+box_w, box_y+box_h], outline='red')\n                    api.log(f'格[{r},{c}]: {num}')\n    \n    if DEBUG:\n        img.save('debug_keypad.png')\n    \n    return key_map\n\n# 执行\nmapping = scan_keypad()\nif mapping:\n    api.log('开始输入密码...')\n    for char in password:\n        if char in mapping:\n            x, y = mapping[char]\n            api.click(x, y, human=True)\n            api.sleep(0.3)\n        else:\n            api.log(f'找不到: {char}')\nelse:\n    api.log('键盘识别失败')\n"}}
+    ],
+
+    "变量示例": [
+        {"action": "run_python", "params": {"code": "# 变量使用示例\n\n# 初始化计数器\ncount = api.get_var('kill_count', 0)\napi.log(f'当前击杀数: {count}')\n\n# 增加计数\napi.set_var('kill_count', count + 1)\n\n# 检查是否达到目标\nif count >= 10:\n    api.log('任务完成!')\n    api.jump('任务完成')\n"}},
+        
+        {"action": "label", "params": {"name": "任务完成"}},
+        {"action": "exit", "params": {}}
+    ],
+
+    "取色判断": [
+        {"action": "run_python", "params": {"code": "# 取色判断示例\nr, g, b = api.get_color(100, 200)\napi.log(f'颜色: RGB({r}, {g}, {b})')\n\n# 判断是否为红色 (血条)\nif r > 200 and g < 100 and b < 100:\n    api.log('检测到红色，可能是血条')\n    api.jump('需要回血')\n"}}
+    ]
+}

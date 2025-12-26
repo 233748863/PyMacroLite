@@ -1,0 +1,17 @@
+# PyMacroLite 依赖
+
+# GUI
+PySide6
+
+# 图像处理
+opencv-python
+numpy
+Pillow
+
+# OCR (RapidOCR + ONNX Runtime)
+rapidocr_onnxruntime
+
+# 打包 (可选)
+# nuitka
+# ordered-set
+# zstandard

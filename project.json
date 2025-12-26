@@ -1,0 +1,738 @@
+{
+    "_settings": {
+        "global_variance": 5,
+        "global_offset_x": 0,
+        "global_offset_y": 0,
+        "human_move": true
+    },
+    "main": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 主入口 - 选择要执行的任务\napi.log('=== PyMacroLite 示例脚本 ===')\napi.log('可用模块:')\napi.log('  - 自动登录')\napi.log('  - 自动挂机')\napi.log('  - OCR密码键盘')\napi.log('  - 找图点击示例')\n"
+            }
+        }
+    ],
+    "自动登录": [
+        {
+            "action": "label",
+            "params": {
+                "name": "等待登录界面"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/id.png",
+                "confidence": 0.8,
+                "label": "开始登录"
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 1
+            }
+        },
+        {
+            "action": "jump",
+            "params": {
+                "target": "等待登录界面"
+            }
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "开始登录"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/id.png",
+                "confidence": 0.8,
+                "human": true
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 0.3
+            }
+        },
+        {
+            "action": "type",
+            "params": {
+                "text": "your_username"
+            }
+        },
+        {
+            "action": "key_hold",
+            "params": {
+                "key": "tab",
+                "duration": 0.1
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 0.2
+            }
+        },
+        {
+            "action": "type",
+            "params": {
+                "text": "your_password"
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 0.3
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/login.png",
+                "confidence": 0.8,
+                "human": true
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 2
+            }
+        },
+        {
+            "action": "call_script",
+            "params": {
+                "name": "处理二次密码"
+            }
+        },
+        {
+            "action": "call_script",
+            "params": {
+                "name": "选择角色进入游戏"
+            }
+        }
+    ],
+    "处理二次密码": [
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/passwd.png",
+                "confidence": 0.8,
+                "label": "输入二次密码"
+            }
+        },
+        {
+            "action": "return",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "输入二次密码"
+            }
+        },
+        {
+            "action": "call_script",
+            "params": {
+                "name": "OCR密码键盘"
+            }
+        }
+    ],
+    "选择角色进入游戏": [
+        {
+            "action": "label",
+            "params": {
+                "name": "等待角色选择"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/name.png",
+                "confidence": 0.7,
+                "label": "点击角色"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/name2.png",
+                "confidence": 0.7,
+                "label": "点击角色2"
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 1
+            }
+        },
+        {
+            "action": "jump",
+            "params": {
+                "target": "等待角色选择"
+            }
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "点击角色"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/name.png",
+                "confidence": 0.7,
+                "human": true
+            }
+        },
+        {
+            "action": "jump",
+            "params": {
+                "target": "进入游戏"
+            }
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "点击角色2"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/name2.png",
+                "confidence": 0.7,
+                "human": true
+            }
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "进入游戏"
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 0.5
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/enter_game.png",
+                "confidence": 0.8,
+                "human": true
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 3
+            }
+        }
+    ],
+    "OCR密码键盘": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# OCR 识别乱序数字键盘\nimport re\n\nkeypad_area = (337, 231, 125, 67)\nrows, cols = 3, 3\npassword = \"1234\"\n\ndef scan_keypad():\n    key_map = {}\n    rx, ry, rw, rh = keypad_area\n    cell_w, cell_h = rw // cols, rh // rows\n    \n    for r in range(rows):\n        for c in range(cols):\n            pad = 3\n            box_x = rx + c * cell_w + pad\n            box_y = ry + r * cell_h + pad\n            box_w = cell_w - pad * 2\n            box_h = cell_h - pad * 2\n            \n            text = api.ocr(region=[box_x, box_y, box_w, box_h])\n            num = ''.join(re.findall(r'\\d+', text))\n            \n            if num:\n                cx = box_x + box_w // 2\n                cy = box_y + box_h // 2\n                key_map[num] = (cx, cy)\n                api.log(f'识别: {num} -> ({cx}, {cy})')\n    \n    return key_map\n\nmapping = scan_keypad()\nif mapping:\n    api.log(f'输入密码: {password}')\n    for char in password:\n        if char in mapping:\n            x, y = mapping[char]\n            api.click(x, y, human=True)\n            api.sleep(0.3)\n        else:\n            api.log(f'找不到: {char}')\nelse:\n    api.log('键盘识别失败')\n"
+            }
+        }
+    ],
+    "自动挂机": [
+        {
+            "action": "label",
+            "params": {
+                "name": "挂机循环"
+            }
+        },
+        {
+            "action": "call_script",
+            "params": {
+                "name": "检查状态"
+            }
+        },
+        {
+            "action": "call_script",
+            "params": {
+                "name": "寻找目标"
+            }
+        },
+        {
+            "action": "call_script",
+            "params": {
+                "name": "执行攻击"
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 1
+            }
+        },
+        {
+            "action": "jump",
+            "params": {
+                "target": "挂机循环"
+            }
+        }
+    ],
+    "检查状态": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 检查血量等状态\ncount = api.get_var('kill_count', 0)\napi.log(f'击杀数: {count}')\n\n# 这里可以添加血量检测逻辑\n# hp_text = api.ocr(region=[hp_region])\n"
+            }
+        }
+    ],
+    "寻找目标": [
+        {
+            "action": "label",
+            "params": {
+                "name": "搜索目标"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/target.png",
+                "confidence": 0.7,
+                "label": "找到目标"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/target2.png",
+                "confidence": 0.7,
+                "label": "找到目标"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/target3.png",
+                "confidence": 0.7,
+                "label": "找到目标"
+            }
+        },
+        {
+            "action": "key_hold",
+            "params": {
+                "key": "w",
+                "duration": 0.3
+            }
+        },
+        {
+            "action": "key_hold",
+            "params": {
+                "key": "a",
+                "duration": 0.2
+            }
+        },
+        {
+            "action": "return",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "找到目标"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "api.log('发现目标!')"
+            }
+        }
+    ],
+    "执行攻击": [
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/target.png",
+                "confidence": 0.7,
+                "label": "攻击目标"
+            }
+        },
+        {
+            "action": "return",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "攻击目标"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/target.png",
+                "confidence": 0.7,
+                "button": "left",
+                "human": true
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 0.3
+            }
+        },
+        {
+            "action": "key_hold",
+            "params": {
+                "key": "1",
+                "duration": 0.1
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 1.5
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 增加击杀计数\ncount = api.get_var('kill_count', 0)\napi.set_var('kill_count', count + 1)\napi.log(f'击杀 +1, 总计: {count + 1}')\n"
+            }
+        }
+    ],
+    "确认对话框处理": [
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/ok1.png",
+                "confidence": 0.8,
+                "label": "点击确认1"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/ok2.png",
+                "confidence": 0.8,
+                "label": "点击确认2"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/check_yes.png",
+                "confidence": 0.8,
+                "label": "点击是"
+            }
+        },
+        {
+            "action": "return",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "点击确认1"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/ok1.png",
+                "confidence": 0.8
+            }
+        },
+        {
+            "action": "return",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "点击确认2"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/ok2.png",
+                "confidence": 0.8
+            }
+        },
+        {
+            "action": "return",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "点击是"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/check_yes.png",
+                "confidence": 0.8
+            }
+        }
+    ],
+    "找图点击示例": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 找图点击的多种方式\n\n# 方式1: 使用 find_and_click 指令\napi.log('方式1: JSON 指令 find_and_click')\n"
+            }
+        },
+        {
+            "action": "find_and_click",
+            "params": {
+                "target": "assets/target.png",
+                "confidence": 0.8,
+                "button": "left",
+                "offset_x": 0,
+                "offset_y": 0,
+                "human": true
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 方式2: Python API find_and_click\napi.log('方式2: Python API')\nfound = api.find_and_click('assets/target.png', confidence=0.8, human=True)\nif found:\n    api.log('找到并点击成功')\nelse:\n    api.log('未找到目标')\n"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 方式3: 分步操作 - 先找图再点击\napi.log('方式3: 分步操作')\npos = api.find_image('assets/target.png', confidence=0.8)\nif pos:\n    x, y = pos\n    api.log(f'找到目标: ({x}, {y})')\n    api.move_human(x, y)  # 擬人化移动\n    api.sleep(0.1)\n    api.click(x, y)\nelse:\n    api.log('未找到目标')\n"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 方式4: 找所有匹配\napi.log('方式4: 找所有匹配')\nresults = api.find_all_images('assets/target.png', confidence=0.7)\napi.log(f'找到 {len(results)} 个匹配')\nfor i, (x, y, w, h, score) in enumerate(results[:5]):\n    api.log(f'  #{i+1}: ({x}, {y}) 置信度: {score:.2f}')\n"
+            }
+        }
+    ],
+    "OCR文字识别示例": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# OCR 识别示例\n\n# 全屏识别\napi.log('=== 全屏 OCR ===')\ntext = api.ocr()\napi.log(f'识别结果: {text[:100]}...' if len(text) > 100 else f'识别结果: {text}')\n"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 区域识别\napi.log('=== 区域 OCR ===')\nregion = [100, 100, 200, 50]  # x, y, w, h\ntext = api.ocr(region=region)\napi.log(f'区域文字: {text}')\n"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 详细识别结果\napi.log('=== 详细 OCR ===')\nresults = api.ocr_detect()\nfor r in results[:5]:\n    api.log(f\"'{r['text']}' 置信度:{r['conf']:.2f} 位置:{r['rect']}\")\n"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 找文字并点击\napi.log('=== 找文字点击 ===')\nfound = api.click_text('确定', human=True)\nif found:\n    api.log('点击成功')\nelse:\n    api.log('未找到文字')\n"
+            }
+        }
+    ],
+    "条件跳转示例": [
+        {
+            "action": "label",
+            "params": {
+                "name": "开始检测"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "assets/target.png",
+                "type": "image",
+                "confidence": 0.8,
+                "label": "图片存在"
+            }
+        },
+        {
+            "action": "jump_if_found",
+            "params": {
+                "target": "确定",
+                "type": "text",
+                "confidence": 0.8,
+                "label": "文字存在"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "api.log('未检测到目标')\n"
+            }
+        },
+        {
+            "action": "exit",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "图片存在"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "api.log('检测到图片目标!')\n"
+            }
+        },
+        {
+            "action": "exit",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "文字存在"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "api.log('检测到文字目标!')\n"
+            }
+        }
+    ],
+    "数值检测示例": [
+        {
+            "action": "check_value_jump",
+            "params": {
+                "region": [
+                    100,
+                    50,
+                    60,
+                    20
+                ],
+                "op": "<",
+                "value": 30,
+                "label": "血量过低"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "api.log('血量正常')\n"
+            }
+        },
+        {
+            "action": "exit",
+            "params": {}
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "血量过低"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "api.log('血量过低，需要回血!')\n"
+            }
+        },
+        {
+            "action": "key_hold",
+            "params": {
+                "key": "1",
+                "duration": 0.1
+            }
+        }
+    ],
+    "鼠标操作示例": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 各种鼠标操作\n\n# 普通点击\napi.click(400, 300)\napi.sleep(0.3)\n\n# 擬人化点击\napi.click(500, 300, human=True)\napi.sleep(0.3)\n\n# 双击\napi.double_click(400, 400)\napi.sleep(0.3)\n\n# 右键\napi.right_click(400, 400)\napi.sleep(0.3)\n\n# 擬人化移动\napi.move_human(600, 400)\napi.sleep(0.3)\n\n# 拖拽\napi.drag(100, 100, 300, 300, duration=0.5, human=True)\napi.sleep(0.3)\n\n# 滚轮\napi.scroll(3)   # 向上\napi.sleep(0.2)\napi.scroll(-3)  # 向下\n\napi.log('鼠标操作演示完成')\n"
+            }
+        }
+    ],
+    "键盘操作示例": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 各种键盘操作\n\n# 单键\napi.key('enter')\napi.sleep(0.2)\n\n# 输入文字\napi.type('Hello World')\napi.sleep(0.3)\n\n# 按住一段时间\napi.key_hold('w', 1.0)\napi.sleep(0.2)\n\n# 组合键\napi.hotkey('ctrl', 'a')  # 全选\napi.sleep(0.2)\napi.hotkey('ctrl', 'c')  # 复制\n\napi.log('键盘操作演示完成')\n"
+            }
+        }
+    ],
+    "变量与循环示例": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 初始化变量\napi.set_var('loop_count', 0)\napi.set_var('max_loops', 5)\napi.log('开始循环测试')\n"
+            }
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "循环开始"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "count = api.get_var('loop_count', 0)\nmax_loops = api.get_var('max_loops', 5)\n\ncount += 1\napi.set_var('loop_count', count)\napi.log(f'循环 {count}/{max_loops}')\n\nif count >= max_loops:\n    api.log('循环完成!')\n    api.jump('循环结束')\n"
+            }
+        },
+        {
+            "action": "wait",
+            "params": {
+                "seconds": 0.5
+            }
+        },
+        {
+            "action": "jump",
+            "params": {
+                "target": "循环开始"
+            }
+        },
+        {
+            "action": "label",
+            "params": {
+                "name": "循环结束"
+            }
+        },
+        {
+            "action": "run_python",
+            "params": {
+                "code": "total = api.get_var('loop_count', 0)\napi.log(f'总共执行了 {total} 次循环')\n"
+            }
+        }
+    ],
+    "取色判断示例": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 取色判断\nx, y = 400, 300\ncolor = api.get_color(x, y)\n\nif color:\n    r, g, b = color\n    api.log(f'坐标 ({x}, {y}) 颜色: RGB({r}, {g}, {b})')\n    \n    # 判断颜色\n    if r > 200 and g < 100 and b < 100:\n        api.log('红色 - 可能是血条/警告')\n    elif r < 100 and g > 200 and b < 100:\n        api.log('绿色 - 可能是生命值/安全')\n    elif r < 100 and g < 100 and b > 200:\n        api.log('蓝色 - 可能是魔法值')\n    else:\n        api.log('其他颜色')\nelse:\n    api.log('取色失败')\n"
+            }
+        }
+    ],
+    "截图保存示例": [
+        {
+            "action": "run_python",
+            "params": {
+                "code": "# 截图并保存\nimg = api.screenshot()\nif img:\n    img.save('screenshot_full.png')\n    api.log('全屏截图已保存')\n\n# 区域截图\nimg_region = api.screenshot(region=[100, 100, 300, 200])\nif img_region:\n    img_region.save('screenshot_region.png')\n    api.log('区域截图已保存')\n"
+            }
+        }
+    ]
+}
